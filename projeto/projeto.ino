@@ -63,32 +63,81 @@ void loop() {
       Serial.println(EEPROM.read(3*i+2));
       delay(recordTime);
       j = 3*i;
-      if (digitalRead(13)) {
+
+      
+      if (digitalRead(13)) {//Stop
         recording = false;
         break;
       }
-      if (digitalRead(12)) {
+
+      
+      if (digitalRead(12)) {//Reset
         recording = false;
-        for (int i = 0 ; i < EEPROM.length() ; i++) {EEPROM.write(i, 0);}
+        for(int q = 1; q < 16; q++){
+          val[0][0] -= val[0][q];
+          val[0][q] = analogRead(A0);
+          val[0][0] += val[0][q];
+        }
+        for(int q = 1; q < 16; q++){
+          val[1][0] -= val[1][q];
+          val[1][q] = analogRead(A1);
+          val[1][0] += val[1][q];
+        }
+        motor1.write(map(val[0][0], 0, 15345, 0, 180));
+        int val1 = map(val[0][0], 0, 15345, 0, 180);
+        motor2.write(map(val[1][0], 0, 15345, 0, 180));
+        int val2 = map(val[1][0], 0, 15345, 0, 180);
+        int val3;
+        if(digitalRead(11)){val3 = 180;}else{val3 = 0;}
+        motor3.write(val3);
+        for (int i = 0 ; i < EEPROM.length()/3 ; i++){
+          EEPROM.write(3*i, val1);
+          EEPROM.write(3*i+1, val2);
+          EEPROM.write(3*i+2, val3);
+        }
         break;
-      }
+      }//End Reset
+      
     }
     recording = false;
     delay(500);
   }else{
     for (int i = 1; i <= j/3; i++){
       digitalWrite(LED_BUILTIN, LOW);
-      if (digitalRead(13)) {
+      if (digitalRead(13)) { //Record
         digitalWrite(LED_BUILTIN, HIGH);
         recording = true;
         delay(500);
         break;
       }
-      if (digitalRead(12)) {
+      
+      if (digitalRead(12)) {//Reset
         recording = false;
-        for (int i = 0 ; i < EEPROM.length() ; i++) {EEPROM.write(i, 0);}
+        for(int q = 1; q < 16; q++){
+          val[0][0] -= val[0][q];
+          val[0][q] = analogRead(A0);
+          val[0][0] += val[0][q];
+        }
+        for(int q = 1; q < 16; q++){
+          val[1][0] -= val[1][q];
+          val[1][q] = analogRead(A1);
+          val[1][0] += val[1][q];
+        }
+        motor1.write(map(val[0][0], 0, 15345, 0, 180));
+        int val1 = map(val[0][0], 0, 15345, 0, 180);
+        motor2.write(map(val[1][0], 0, 15345, 0, 180));
+        int val2 = map(val[1][0], 0, 15345, 0, 180);
+        int val3;
+        if(digitalRead(11)){val3 = 180;}else{val3 = 0;}
+        motor3.write(val3);
+        for (int i = 0 ; i < EEPROM.length()/3 ; i++){
+          EEPROM.write(3*i, val1);
+          EEPROM.write(3*i+1, val2);
+          EEPROM.write(3*i+2, val3);
+        }
         break;
-      }
+      }//End Reset
+      
       motor1.write(EEPROM.read(3*i));
       motor2.write(EEPROM.read(3*i+1));
       motor3.write(EEPROM.read(3*i+2));
